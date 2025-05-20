@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../ui/card";
 import { Button } from "../../ui/button";
 import { FileText, Clock, CheckCircle, AlertTriangle } from "lucide-react";
-import Navbar from "../../navbar/Navbar";
+import { StudentNavbar } from "../../navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../../hook/use-toast";
 
@@ -194,7 +194,7 @@ const StudentDashboard = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Navbar />
+            <StudentNavbar />
             <div className="container mx-auto py-8 px-4">
                 <div className="flex justify-between items-center mb-8">
                     <div>
