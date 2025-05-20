@@ -39,7 +39,6 @@ const Navbar = () => {
         </div>
 
         <div className="flex">
-          <NavItem icon={<Edit className="w-5 h-5" />} label="Nouvel examen" active={true} />
           <NavItem icon={<List className="w-5 h-5" />} label="Examens" />
           <NavItem icon={<User className="w-5 h-5" />} label="Profil" />
           <NavItem icon={<HelpCircle className="w-5 h-5" />} label="Aide" />

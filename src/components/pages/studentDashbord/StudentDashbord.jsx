@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../ui/card";
 import { Button } from "../../ui/button";
 import { FileText, Clock, CheckCircle, AlertTriangle } from "lucide-react";
-import Navbar from "../../navbar/Navbar";
+import Navbar from "../../navbar/NavbarStudent";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../../hook/use-toast";
 
@@ -204,34 +204,6 @@ const StudentDashboard = () => {
                         <p className="text-gray-600">
                             Consultez vos examens à venir et vos résultats.
                         </p>
-                    </div>
-                    <div className="space-x-4">
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                const newExam = {
-                                    id: `new-${Date.now()}`,
-                                    title: "Nouvel Examen Test",
-                                    dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-                                    status: "upcoming",
-                                    questions: 10,
-                                    duration: 45,
-                                };
-
-                                const updatedExams = [...exams, newExam];
-                                updateExams(updatedExams);
-
-                                toast({
-                                    title: "Nouvel examen",
-                                    description: "Un nouvel examen de test a été ajouté.",
-                                });
-                            }}
-                        >
-                            + Nouvel examen test
-                        </Button>
-                        <Button onClick={simulateGrading}>
-                            Noter les examens terminés
-                        </Button>
                     </div>
                 </div>
 
