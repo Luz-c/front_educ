@@ -1,12 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Link } from "react-router-dom"
-import { useRouter } from "react-router"
+import { useNavigate, Link } from "react-router-dom"
 import { Eye, EyeOff, Lock, Mail, LogIn } from "lucide-react"
 
 export default function LoginPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
@@ -45,7 +44,7 @@ export default function LoginPage() {
       // Rediriger vers le tableau de bord approprié
       // Dans une application réelle, vous utiliseriez le rôle de l'utilisateur
       const role = Math.random() > 0.5 ? "student" : "teacher"
-      router.push(`/dashboard/${role}`)
+      navigate(`/dashboard/${role}`)
     } catch (err) {
       setError(err.message || "Une erreur est survenue lors de la connexion")
     } finally {
@@ -70,7 +69,7 @@ export default function LoginPage() {
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Ou{" "}
-          <Link href="/auth/register" className="font-medium text-slate-700 hover:text-slate-900">
+          <Link to="/auth/register" className="font-medium text-slate-700 hover:text-slate-900">
             créez un nouveau compte
           </Link>
         </p>
@@ -154,7 +153,7 @@ export default function LoginPage() {
               </div>
 
               <div className="text-sm">
-                <Link href="/auth/forgot-password" className="font-medium text-slate-700 hover:text-slate-900">
+                <Link to="/auth/forgot-password" className="font-medium text-slate-700 hover:text-slate-900">
                   Mot de passe oublié ?
                 </Link>
               </div>
