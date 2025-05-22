@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import { Eye } from "lucide-react";
+import { Eye, Settings } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import QuestionTypeSelector from "../QuestionTypeSelector";
-import QuestionForm from "../QuestionForm";
+import QuestionForm, { QuestionData } from "../QuestionForm";
 import QuestionList from "../QuestionList";
-import GradeSettingsDialog from "../GradeSettingsDialog";
+import GradeSettingsDialog, { GradeScale } from "../GradeSettingsDialog";
+import { useNavigate } from "react-router-dom";
 
 const ExamCreator = () => {
+    const navigate = useNavigate();
     const [examName, setExamName] = useState("");
-    const [selectedQuestionType, setSelectedQuestionType] = useState(null);
+    const [selectedQuestionType, setSelectedQuestionType] = useState(undefined);
     const [questions, setQuestions] = useState([]);
     const [editingQuestionId, setEditingQuestionId] = useState(null);
     const [gradeSettingsOpen, setGradeSettingsOpen] = useState(false);
@@ -21,34 +23,31 @@ const ExamCreator = () => {
         E: 50,
     });
 
-    // Handle selecting a question type
     const handleQuestionTypeSelect = (type) => {
         setSelectedQuestionType(type);
         setEditingQuestionId(null);
     };
 
-    // Handle canceling question creation or editing
     const handleCancelQuestion = () => {
-        setSelectedQuestionType(null);
+        setSelectedQuestionType(undefined);
         setEditingQuestionId(null);
     };
 
-    // Handle saving a question (new or edited)
     const handleSaveQuestion = (question) => {
         if (editingQuestionId) {
-            setQuestions(
-                questions.map((q) =>
-                    q.id === editingQuestionId ? question : q
-                )
+            // Update existing question
+            setQuestions((prevQuestions) =>
+                prevQuestions.map((q) => (q.id === editingQuestionId ? question : q))
             );
         } else {
-            setQuestions([...questions, question]);
+            // Add new question
+            setQuestions((prevQuestions) => [...prevQuestions, question]);
         }
-        setSelectedQuestionType(null);
+
+        setSelectedQuestionType(undefined);
         setEditingQuestionId(null);
     };
 
-    // Handle editing an existing question
     const handleEditQuestion = (id) => {
         const questionToEdit = questions.find((q) => q.id === id);
         if (questionToEdit) {
@@ -57,29 +56,39 @@ const ExamCreator = () => {
         }
     };
 
-    // Handle deleting a question
     const handleDeleteQuestion = (id) => {
-        setQuestions(questions.filter((q) => q.id !== id));
+        setQuestions((prevQuestions) => prevQuestions.filter((q) => q.id !== id));
     };
 
-    // Calculate total points for all questions
     const getTotalPoints = () => {
         return questions.reduce(
             (sum, question) =>
-                question.type !== "info-block"
-                    ? sum + (question.points || 0)
-                    : sum,
+                question.type !== "info-block" ? sum + (question.points || 0) : sum,
             0
         );
     };
 
-    // Handle saving grade scale
     const handleSaveGradeScale = (newScale) => {
         setGradeScale(newScale);
         setGradeSettingsOpen(false);
     };
 
-    // Determine the currently editing question
+    const handleNavigateToConfig = () => {
+        const tempExamId = `temp-${Date.now()}`;
+
+        const examData = {
+            id: tempExamId,
+            title: examName || "Nouvel examen",
+            questions,
+            gradeScale,
+            createdAt: new Date().toISOString(),
+        };
+
+        localStorage.setItem(`exam-draft-${tempExamId}`, JSON.stringify(examData));
+
+        navigate(`/exam-config/${tempExamId}`);
+    };
+
     const currentlyEditingQuestion = editingQuestionId
         ? questions.find((q) => q.id === editingQuestionId)
         : null;
@@ -87,7 +96,6 @@ const ExamCreator = () => {
     return (
         <div className="bg-gray-100 p-4 flex-1 min-h-[calc(100vh-3.5rem)]">
             <div className="max-w-5xl mx-auto bg-white rounded shadow-sm">
-                {/* Header: Exam Name Input */}
                 <div className="p-4 flex items-center gap-4">
                     <div className="flex-1">
                         <Input
@@ -98,14 +106,13 @@ const ExamCreator = () => {
                         />
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="rounded-full"
-                        >
+                        <Button variant="outline" size="icon" className="rounded-full">
                             <Eye className="w-5 h-5 text-gray-600" />
                         </Button>
-                        <Button className="flex items-center gap-2 bg-[#18222e] text-white">
+                        <Button
+                            className="flex items-center gap-2 bg-[#18222e] text-white"
+                            onClick={handleNavigateToConfig}
+                        >
                             Configurer
                             <svg
                                 width="16"
@@ -123,8 +130,7 @@ const ExamCreator = () => {
                     </div>
                 </div>
 
-                {/* Questions List */}
-                {questions.length > 0 && (
+                {!selectedQuestionType && questions.length > 0 && (
                     <QuestionList
                         questions={questions}
                         onEdit={handleEditQuestion}
@@ -133,24 +139,20 @@ const ExamCreator = () => {
                     />
                 )}
 
-                {/* New Question Section */}
-                <div className="p-4 border-t mt-4">
-                    {selectedQuestionType ? (
-                        <QuestionForm
-                            type={selectedQuestionType}
-                            onCancel={handleCancelQuestion}
-                            onSave={handleSaveQuestion}
-                            initialData={currentlyEditingQuestion}
-                        />
-                    ) : (
-                        <QuestionTypeSelector
-                            onSelectType={handleQuestionTypeSelect}
-                        />
-                    )}
-                </div>
+                {selectedQuestionType ? (
+                    <QuestionForm
+                        type={selectedQuestionType}
+                        onCancel={handleCancelQuestion}
+                        onSave={handleSaveQuestion}
+                        initialData={currentlyEditingQuestion}
+                    />
+                ) : (
+                    questions.length === 0 && (
+                        <QuestionTypeSelector onSelectType={handleQuestionTypeSelect} />
+                    )
+                )}
             </div>
 
-            {/* Grade Settings Dialog */}
             <GradeSettingsDialog
                 open={gradeSettingsOpen}
                 onOpenChange={setGradeSettingsOpen}

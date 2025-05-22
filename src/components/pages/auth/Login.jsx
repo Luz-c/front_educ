@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { Eye, EyeOff, Lock, Mail, LogIn } from "lucide-react"
+import Footer from "../../Footer"
+import Header from "../../Header"
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -24,52 +26,55 @@ export default function LoginPage() {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
-
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+  
     try {
-      // Simuler une requête d'authentification
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Dans une application réelle, vous feriez une requête à votre API
-      // const response = await fetch('/api/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData),
-      // })
-      // const data = await response.json()
-      // if (!response.ok) throw new Error(data.message || 'Erreur de connexion')
-
-      // Rediriger vers le tableau de bord approprié
-      // Dans une application réelle, vous utiliseriez le rôle de l'utilisateur
-      const role = Math.random() > 0.5 ? "student" : "teacher"
-      navigate(`/dashboard/${role}`)
+      // Récupérer les utilisateurs enregistrés dans localStorage
+      const storedData = localStorage.getItem("authConnect");
+      const authConnect = storedData ? JSON.parse(storedData) : [];
+  
+      // Vérifier si des utilisateurs existent
+      if (authConnect.length === 0) {
+        throw new Error("Aucun utilisateur enregistré. Veuillez créer un compte.");
+      }
+  
+      // Vérifier si l'email et le mot de passe correspondent à un utilisateur
+      const user = authConnect.find(
+        (u) => u.email === formData.email && u.password === formData.password
+      );
+  
+      if (!user) {
+        throw new Error("Email ou mot de passe incorrect.");
+      }
+  
+      // Rediriger l'utilisateur en fonction de son rôle
+      if (user.role === "teacher") {
+        navigate("/teacher-dashboard");
+      } else if (user.role === "student") {
+        navigate("/student-dashboard");
+      } else {
+        throw new Error("Rôle utilisateur inconnu.");
+      }
     } catch (err) {
-      setError(err.message || "Une erreur est survenue lors de la connexion")
+      setError(err.message || "Une erreur est survenue lors de la connexion.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div>
+      <Header />
+      <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center">
-            <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#4CAF50" />
-              </svg>
-            </div>
-          </div>
-        </div>
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-slate-800">
           Connectez-vous à votre compte
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Ou{" "}
-          <Link to="/auth/register" className="font-medium text-slate-700 hover:text-slate-900">
+          <Link to="/register" className="font-medium text-slate-700 hover:text-slate-900">
             créez un nouveau compte
           </Link>
         </p>
@@ -238,6 +243,8 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+    </div>
+      <Footer />
     </div>
   )
 }

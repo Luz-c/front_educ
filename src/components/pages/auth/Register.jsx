@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { Eye, EyeOff, Lock, Mail, User, UserPlus, BookOpen, ClapperboardIcon as ChalkboardTeacher } from "lucide-react"
+import Footer from "../../Footer"
+import Header from "../../Header"
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -40,55 +42,57 @@ export default function RegisterPage() {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
-
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+  
     // Vérifier que les mots de passe correspondent
     if (formData.password !== formData.confirmPassword) {
-      setError("Les mots de passe ne correspondent pas")
-      setIsLoading(false)
-      return
+      setError("Les mots de passe ne correspondent pas");
+      setIsLoading(false);
+      return;
     }
-
+  
     try {
       // Simuler une requête d'inscription
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Dans une application réelle, vous feriez une requête à votre API
-      // const response = await fetch('/api/auth/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData),
-      // })
-      // const data = await response.json()
-      // if (!response.ok) throw new Error(data.message || 'Erreur d\'inscription')
-
-      // Rediriger vers la page de connexion ou le tableau de bord
-      navigate("/auth/login")
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+  
+      // Récupérer les utilisateurs existants dans localStorage
+      const existingUsers = JSON.parse(localStorage.getItem("authConnect")) || [];
+  
+      // Vérifier si un utilisateur avec le même email existe déjà
+      const userExists = existingUsers.some((user) => user.email === formData.email);
+      if (userExists) {
+        setError("Un compte avec cet email existe déjà");
+        setIsLoading(false);
+        return;
+      }
+  
+      // Ajouter le nouvel utilisateur au tableau
+      existingUsers.push(formData);
+  
+      // Enregistrer le tableau mis à jour dans localStorage
+      localStorage.setItem("authConnect", JSON.stringify(existingUsers));
+  
+      // Rediriger vers la page de connexion
+      alert("Inscription réussie !");
+      navigate("/login");
     } catch (err) {
-      setError(err.message || "Une erreur est survenue lors de l'inscription")
+      setError(err.message || "Une erreur est survenue lors de l'inscription");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div>
+      <Header />
+      <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center">
-            <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#4CAF50" />
-              </svg>
-            </div>
-          </div>
-        </div>
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-slate-800">Créez votre compte</h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Ou{" "}
-          <Link href="/auth/login" className="font-medium text-slate-700 hover:text-slate-900">
+          <Link to="/login" className="font-medium text-slate-700 hover:text-slate-900">
             connectez-vous à votre compte existant
           </Link>
         </p>
@@ -401,6 +405,8 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
+    </div>
+      <Footer />
     </div>
   )
 }
